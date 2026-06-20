@@ -28,6 +28,16 @@ PACKAGES="$(grep -v -e '^#' -e '^$' /mnt/packages)"
 export PACKAGES
 ./alpine-make-rootfs "$ROOTFS_DEST" /mnt/setup.sh
 
+__ "Downloading RustFS"
+RUSTFS_VER="1.0.0-beta.8"
+RUSTFS_URL="https://github.com/rustfs/rustfs/releases/download/${RUSTFS_VER}/rustfs-linux-x86_64-musl-v${RUSTFS_VER}.zip"
+wget -q "$RUSTFS_URL" -O /tmp/rustfs.zip
+apk add --no-cache unzip >/dev/null 2>&1
+mkdir -p "$ROOTFS_DEST/usr/local/bin"
+unzip -p /tmp/rustfs.zip > "$ROOTFS_DEST/usr/local/bin/rustfs"
+chmod +x "$ROOTFS_DEST/usr/local/bin/rustfs"
+rm /tmp/rustfs.zip
+
 __ "Building initramfs"
 
 cd "$ROOTFS_DEST"

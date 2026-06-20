@@ -28,7 +28,11 @@ rc-update add acpid default
 rc-update add local default
 rc-update add openntpd default
 rc-update add sshd default
+rc-update add rustfs default
 rc-update add udev-postmount default
+
+# RustFS data directory (ephemeral — mount persistent storage here for production)
+mkdir -p /data
 
 # --- Generate SSH host key at build time ---
 # Each build gets its own Ed25519 host key.

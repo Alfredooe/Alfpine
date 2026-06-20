@@ -1,0 +1,26 @@
+#!/sbin/openrc-run
+description="RustFS S3-compatible object storage"
+
+depend() {
+    need net
+    after bootmisc
+}
+
+start() {
+    ebegin "Starting RustFS"
+    export RUSTFS_ROOT_USER="${RUSTFS_ROOT_USER:-rustfsadmin}"
+    export RUSTFS_ROOT_PASSWORD="${RUSTFS_ROOT_PASSWORD:-rustfsadmin}"
+    export RUSTFS_ADDRESS="${RUSTFS_ADDRESS:-:9000}"
+    export RUSTFS_CONSOLE_ADDRESS="${RUSTFS_CONSOLE_ADDRESS:-:9001}"
+    start-stop-daemon --start --background --make-pidfile \
+        --pidfile /run/rustfs.pid \
+        --stdout /var/log/rustfs.log --stderr /var/log/rustfs.log \
+        --exec /usr/local/bin/rustfs -- server /data
+    eend $?
+}
+
+stop() {
+    ebegin "Stopping RustFS"
+    start-stop-daemon --stop --pidfile /run/rustfs.pid
+    eend $?
+}
