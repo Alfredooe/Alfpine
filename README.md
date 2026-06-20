@@ -20,5 +20,3 @@ Requires Docker. Login: `root` / `root`.
 - **Files:** drop into `root/` (copied verbatim)
 - **SSH:** `cp ~/.ssh/id_ed25519.pub root/root/.ssh/authorized_keys`
 - **Persistence:** add mounts to `root/etc/fstab`
-
-Based on [frood](https://github.com/FiloSottile/mostly-harmless/tree/main/frood). CC0.
