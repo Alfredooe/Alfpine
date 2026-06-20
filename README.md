@@ -1,9 +1,6 @@
 # fsuki
 
-Alpine Linux as a single-file UKI — no disk, no bootloader, no root partition.
-Everything in RAM. Reboot = factory reset.
-
-Bundles **RustFS**, an S3-compatible object storage server, as a turnkey appliance.
+RustFS on Alpine Linux as a single-file UKI — no disk, no bootloader, no root partition, Deploying RustFS as a turnkey appliance.
 
 ## What you get
 
