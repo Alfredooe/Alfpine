@@ -3,25 +3,47 @@
 Alpine Linux as a single-file UKI — no disk, no bootloader, no root partition.
 Everything in RAM. Reboot = factory reset.
 
-Bundles RustFS, 
+Bundles **RustFS**, an S3-compatible object storage server, as a turnkey appliance.
 
 ## What you get
 
-- **Console:** live RustFS server logs read only no shell
+- **Console:** live RustFS server logs (read-only, no shell)
 - **SSH:** key-only auth on port 2222
 - **S3 API:** `http://<host>:9000`
 - **RustFS Console:** `http://<host>:9001` (login: `rustfsadmin` / `rustfsadmin`)
+- **Prometheus metrics:** `http://<host>:9100/metrics` (node_exporter)
 
 ## Usage
 
 ```sh
 ./alfpine build          # Build the UKI
-./alfpine run            # Build + test in QEMU (ports 2222, 9000, 9001 forwarded)
+./alfpine run            # Build + test in QEMU
 ./alfpine qemu           # Run latest image in QEMU
 ./alfpine flash /dev/sdb # Write to USB stick
 ```
 
-Requires Docker to build
+Requires Docker for the build container and QEMU runner. No Docker inside the image.
+
+## Ports
+
+| Port | Service |
+|------|---------|
+| 2222 | SSH (key-only) |
+| 9000 | RustFS S3 API |
+| 9001 | RustFS Web Console |
+| 9100 | Prometheus Node Exporter |
+
+## Observability
+
+RustFS exports traces, metrics, and logs via **OTLP/HTTP** (push-based). Point an
+OpenTelemetry collector at RustFS by setting `RUSTFS_OBS_ENDPOINT`:
+
+```sh
+export RUSTFS_OBS_ENDPOINT=http://otel-collector:4318
+```
+
+The node_exporter on port 9100 covers system-level metrics (CPU, memory, disk,
+network) and works with any Prometheus-compatible scraper.
 
 ## Customize
 
