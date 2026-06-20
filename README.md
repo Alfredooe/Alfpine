@@ -7,8 +7,9 @@ Everything runs in RAM. Reboot = factory reset.
 ## Usage
 
 ```sh
+./alfpine run            # Build and test in QEMU
 ./alfpine build          # Build a UKI image
-./alfpine qemu           # Test in QEMU
+./alfpine qemu           # Test the latest image
 ./alfpine flash /dev/sdb # Write to USB stick
 ```
 

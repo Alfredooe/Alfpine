@@ -17,54 +17,58 @@ next_image() {
     echo "alfpine.${current_date}$(printf %02d $counter).efi"
 }
 
-case "$1" in
-    build)
-        image=$(next_image)
-        echo "Building image $image"
-        echo
+do_build() {
+    image=$(next_image)
+    echo "Building image $image"
+    echo
+    docker run --privileged --rm -it \
+        -v "$PWD":/mnt -w /root \
+        "alpine:latest" /mnt/build-inner.sh "/mnt/$IMAGES_DIR/$image"
+    echo "$image"
+}
 
-        # Run build inside an Alpine container.
-        # We need --privileged for mounting things inside the container (ukify uses systemd-efistub).
-        docker run --privileged --rm -it \
-            -v "$PWD":/mnt -w /root \
-            "alpine:latest" /mnt/build-inner.sh "/mnt/$IMAGES_DIR/$image"
-        ;;
-    qemu)
+do_qemu() {
+    image="$1"
+    if [ -z "$image" ]; then
         image=$(latest_image)
         if [ -z "$image" ]; then
             echo "No image found. Run './alfpine build' first."
             exit 1
         fi
-        echo "Running image $image in QEMU (inside Docker)"
-        echo "  Terminate with: Ctrl-A X"
-        echo "  Shutdown in guest: poweroff"
+    fi
+    echo "Booting $image in QEMU (Docker)..."
+    echo
+    docker run --rm -it --privileged \
+        -v "$PWD/$IMAGES_DIR":/images \
+        alpine:latest sh -c '
+            set -e
+            apk add --no-cache qemu-system-x86_64 ovmf mtools
+            truncate -s 350M /tmp/disk.img
+            mkfs.vfat -F 32 /tmp/disk.img
+            mmd -i /tmp/disk.img ::EFI
+            mmd -i /tmp/disk.img ::EFI/BOOT
+            mcopy -i /tmp/disk.img /images/'"$image"' ::EFI/BOOT/BOOTX64.EFI
+            cp /usr/share/OVMF/OVMF_VARS.fd /tmp/OVMF_VARS.fd
+            qemu-system-x86_64 \
+                -M pc -m 2G -nographic \
+                -accel kvm -accel tcg \
+                -drive if=pflash,format=raw,file=/usr/share/OVMF/OVMF_CODE.fd,readonly=on \
+                -drive if=pflash,format=raw,file=/tmp/OVMF_VARS.fd \
+                -drive file=/tmp/disk.img,format=raw,if=virtio
+        '
+}
+
+case "$1" in
+    build)
+        do_build > /dev/null
+        ;;
+    qemu)
+        do_qemu ""
+        ;;
+    run)
+        image=$(do_build)
         echo
-
-        # Everything runs in Docker: ESP creation + QEMU
-        docker run --rm -it --privileged \
-            -v "$PWD/$IMAGES_DIR":/images \
-            alpine:latest sh -c '
-                set -e
-                apk add --no-cache qemu-system-x86_64 ovmf mtools
-
-                # Create ESP disk image with the UKI
-                truncate -s 350M /tmp/disk.img
-                mkfs.vfat -F 32 /tmp/disk.img
-                mmd -i /tmp/disk.img ::EFI
-                mmd -i /tmp/disk.img ::EFI/BOOT
-                mcopy -i /tmp/disk.img /images/'"$image"' ::EFI/BOOT/BOOTX64.EFI
-
-                # Copy vars file (QEMU needs write access)
-                cp /usr/share/OVMF/OVMF_VARS.fd /tmp/OVMF_VARS.fd
-
-                # Run QEMU — try KVM, fall back to TCG
-                qemu-system-x86_64 \
-                    -M pc -m 2G -nographic \
-                    -accel kvm -accel tcg \
-                    -drive if=pflash,format=raw,file=/usr/share/OVMF/OVMF_CODE.fd,readonly=on \
-                    -drive if=pflash,format=raw,file=/tmp/OVMF_VARS.fd \
-                    -drive file=/tmp/disk.img,format=raw,if=virtio
-            '
+        do_qemu "$image"
         ;;
     flash)
         image=$(latest_image)
@@ -86,7 +90,6 @@ case "$1" in
         echo "Press Enter to continue or Ctrl-C to abort..."
         read -r _
 
-        # Build a disk image with proper ESP + UKI, then dd to device
         FLASH_IMG=$(mktemp)
         cleanup() { rm -f "$FLASH_IMG"; }
         trap cleanup EXIT
@@ -112,6 +115,7 @@ case "$1" in
         echo "Usage: $0 <subcommand>"
         echo
         echo "Subcommands:"
+        echo "  run              Build and run in QEMU"
         echo "  build            Build a new UKI image"
         echo "  qemu             Run the latest image in QEMU"
         echo "  flash <device>   Write the UKI directly to a USB stick"
