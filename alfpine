@@ -39,7 +39,7 @@ do_qemu() {
     echo "Booting $image in QEMU (Docker)..."
     echo
     docker run --rm -it --privileged \
-        -p 2222:2222 -p 9000:9000 -p 9001:9001 \
+        -p 2222:2222 -p 9000:9000 -p 9001:9001 -p 9100:9100 \
         -v "$PWD/$IMAGES_DIR":/images \
         alpine:latest sh -c '
             set -e
@@ -53,7 +53,7 @@ do_qemu() {
             qemu-system-x86_64 \
                 -M pc -m 2G -nographic \
                 -accel kvm -accel tcg \
-                -net nic -net user,hostfwd=tcp::2222-:22,hostfwd=tcp::9000-:9000,hostfwd=tcp::9001-:9001 \
+                -net nic -net user,hostfwd=tcp::2222-:22,hostfwd=tcp::9000-:9000,hostfwd=tcp::9001-:9001,hostfwd=tcp::9100-:9100 \
                 -drive if=pflash,format=raw,file=/usr/share/OVMF/OVMF_CODE.fd,readonly=on \
                 -drive if=pflash,format=raw,file=/tmp/OVMF_VARS.fd \
                 -drive file=/tmp/disk.img,format=raw,if=virtio

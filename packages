@@ -12,6 +12,7 @@ dhcpcd
 openresolv
 openntpd
 openssh
+prometheus-node-exporter
 
 # Filesystems and devices
 eudev

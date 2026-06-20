@@ -28,6 +28,7 @@ rc-update add acpid default
 rc-update add local default
 rc-update add openntpd default
 rc-update add sshd default
+rc-update add node-exporter default
 rc-update add rustfs default
 rc-update add udev-postmount default
 
