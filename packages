@@ -19,6 +19,7 @@ dosfstools
 e2fsprogs
 
 # Tools
+btop
 tar
 wget
 curl

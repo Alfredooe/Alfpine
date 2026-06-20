@@ -1,1 +1,2 @@
 sshd_disable_keygen=yes
+sshd_flags="-o PasswordAuthentication=no -o AuthenticationMethods=publickey"
