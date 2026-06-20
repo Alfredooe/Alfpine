@@ -1,4 +1,4 @@
 
-alfpine — Alpine Linux, running entirely from initramfs.
+fsuki — Alpine Linux, running entirely from initramfs.
 No root filesystem. Everything lives in RAM.
 

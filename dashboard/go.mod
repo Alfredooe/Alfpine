@@ -1,4 +1,4 @@
-module alfpine-dashboard
+module fsuki-dashboard
 
 go 1.24.0
 

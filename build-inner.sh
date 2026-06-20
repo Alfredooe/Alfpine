@@ -14,7 +14,7 @@ wget https://raw.githubusercontent.com/alpinelinux/alpine-make-rootfs/v0.7.0/alp
 __ "Building rootfs"
 
 mkdir -p "$ROOTFS_DEST/etc"
-basename "$1" > "$ROOTFS_DEST/etc/alfpine-release"
+basename "$1" > "$ROOTFS_DEST/etc/fsuki-release"
 
 # Stop mkinitfs from running during apk install.
 mkdir -p "$ROOTFS_DEST/etc/mkinitfs"
@@ -60,7 +60,7 @@ CMDLINE="rdinit=/sbin/init console=tty1 console=ttyS0"
 ukify build --output "$1" --cmdline "$CMDLINE" \
     --linux "$ROOTFS_DEST/boot/vmlinuz-lts" \
     --initrd "$ROOTFS_DEST/boot/initramfs-lts" \
-    --os-release "@$ROOTFS_DEST/etc/alfpine-release"
+    --os-release "@$ROOTFS_DEST/etc/fsuki-release"
 
 __ "Created image!"
 

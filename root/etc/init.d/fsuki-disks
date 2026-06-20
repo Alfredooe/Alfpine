@@ -14,10 +14,10 @@ start() {
         # Skip the ESP (contains vfat)
         blkid "$dev" 2>/dev/null | grep -q 'TYPE="vfat"' && continue
 
-        LABEL="ALFPINE_DATA${N}"
+        LABEL="FSUKI_DATA${N}"
         MP="/data/disk${N}"
 
-        if ! blkid "$dev" 2>/dev/null | grep -q "ALFPINE_DATA"; then
+        if ! blkid "$dev" 2>/dev/null | grep -q "FSUKI_DATA"; then
             ebegin "Formatting $dev as XFS ($LABEL)"
             mkfs.xfs -q -i size=512 -n ftype=1 -L "$LABEL" "$dev"
             eend $?
@@ -34,7 +34,7 @@ start() {
         [ -d "$mp" ] || continue
         VOLUMES="$VOLUMES $mp"
     done
-    echo "$VOLUMES" > /run/alfpine-volumes
+    echo "$VOLUMES" > /run/fsuki-volumes
 }
 
 stop() {

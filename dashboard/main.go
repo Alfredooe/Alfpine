@@ -161,7 +161,7 @@ func (m *model) refresh() {
 func (m model) View() string {
 	var b strings.Builder
 
-	b.WriteString("┌─── RustFS Appliance ────────────────────────────────────────────┐\n")
+	b.WriteString("┌─── FSUKI Appliance ─────────────────────────────────────────────┐\n")
 
 	// Server line
 	b.WriteString(fmt.Sprintf("│  Server   %-4s  │  RSS %-7s  │  CPU %-5s                │\n",
